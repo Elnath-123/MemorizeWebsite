@@ -29,7 +29,7 @@
 
 			<div class="collapse navbar-collapse navbar-right navbar-ex1-collapse">
 				<ul class="nav navbar-nav">
-					<li class="menuItem"><a href="app.html">停止测验</a></li>
+					<li class="menuItem"><a href="app.html" id="return-main">停止测验</a></li>
 					<li class="menuItem"><a href="javascript:">UserName</a></li>
 				</ul>
 			</div>	   
@@ -49,8 +49,7 @@
             <div class="main-frame-test">
                 <h2 class="word">apple [ˈæpl]</h2>
                 <h3 class="correct-answer"><font color="green">n.苹果</font></h3>
-                <h4 class="prompt">请根据您对单词认识程度选择以下选项中的一个：</h4>
-                <p>点击屏幕任何空白位置，显示正确答案</p>
+                <h4 class="prompt">请选择正确答案：</h4>
                 <table class="selection" border="0">
                     <tr>
                     <td><a class="btn btn-embossed btn-primary" id="btn1" href="javascript:" role="button">n.葡萄</a></td>
@@ -70,6 +69,29 @@
     <script src="js/jquery.cookie.js"></script>
     <script src='js/test.js'></script>
     
+
+    <script src="js/bootstrap.js"></script>
+	<script src="js/owl.carousel.js"></script>
+	<script src="js/script.js"></script>
+	<!-- StikyMenu -->
+	<script src="js/stickUp.min.js"></script>
+	<script type="text/javascript">
+	  jQuery(function($) {
+		$(document).ready( function() {
+		  $('.navbar-default').stickUp();
+		});
+	  });
+	
+	</script>
+	<!-- Smoothscroll -->
+	<script src="js/wow.min.js"></script>
+	<script>
+	 new WOW().init();
+	</script>
+	<script src="js/classie.js"></script>
+	
+	<!-- Magnific Popup core JS file -->
+	<script src="js/jquery.magnific-popup.js"></script> 
 </body>
 
 </html>

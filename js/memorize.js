@@ -143,7 +143,7 @@ $("#not-familiar, #not-determined, #familiar").on("click", function(){
     render_html(words, seq, mode);
     localStorage.setItem('seq', seq + 1);
 })
-
+/*
 function render_button_html(mode, seq, max_seq, type){
     if(mode == "review"){
         var review = getReviewQueue();
@@ -174,7 +174,7 @@ $(".left-button").on("click", function(){
     var curr_seq = localStorage.getItem("curr_seq");
     render_button_html(mode, seq, seq + 1, type);
 });
-
+*/
 $(".right-button").on("click", function(){
     var mode = getCurrentMode();
     var seq = getCurrentSequence();
@@ -212,7 +212,6 @@ function updateIndex(select_content, seq, mode){
         }
         popFromReviewQueue();
     }
-    
 }
 
 function judgeExit(words, seq, mode){
@@ -304,6 +303,7 @@ function popFromReviewQueue(){
 function getReciteReviewQueue(){
     return JSON.parse(localStorage.getItem("recite_review_queue"));
 }
+
 
 function getWords(){
     return JSON.parse(localStorage.getItem("words"));
