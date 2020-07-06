@@ -1,0 +1,27 @@
+# 注册页面
+USER_EXIST = 1
+REG_SUCCESS = 2
+
+# 登陆页面
+USER_NOTEXIST = 1
+PWD_INCORRECT = 2
+LOGIN_SUCCESS = 3
+
+# 设置页面
+OLD_PWD_ERROR = 1
+SET_SUCCESS = 2
+__C = dict()
+VOCAB_CET4 = 1
+VOCAB_CET6 = 2
+VOCAB_TOEFL = 8
+VOCAB_GRE = 16
+__C['cet-4'] = VOCAB_CET4
+__C['cet-6'] = VOCAB_CET6
+__C['toefl'] = VOCAB_TOEFL
+__C['gre'] = VOCAB_GRE
+
+#背诵准备(memorize-in)
+NOT_SELECT_VOCAB = 1
+MEM_IN_SUCCESS = 2
+# Cookie
+COOKIE_EXPIRE = 60 * 30 # 10 minutes
