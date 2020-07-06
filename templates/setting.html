@@ -65,7 +65,7 @@
         <HR/>
         <div class="recite-vocab" align="center">
             <h3>背诵词库设置</h3>
-            <select>
+            <select id="vocab">
                 <option value ="cet-4">四级词汇</option>
                 <option value ="cet-6">六级词汇</option>
                 <option value="toefl">托福词汇</option>
@@ -75,22 +75,18 @@
         <HR/>
         <div class="recite-plan" align="center">
             <h3>背诵计划设置</h3>
-            <select>
-                <option>20</option>
-                <option>30</option>
-                <option>40</option>
-                <option>50</option>
-              </select>
+            <select id="plan">
+            </select>
         </div>
         <HR/>
         <div class="change-pwd" align="center">
             <h3>修改密码</h3>
-            <input type="password" placeholder="旧密码" style="margin-top:10px"></input><br/>
-            <input type="password" placeholder="新密码" style="margin-top:10px"></input><br/>
-            <input type="password" placeholder="确认新密码" style="margin-top:10px"></input><br/>
+            <input type="password" id='old-pwd' placeholder="旧密码" style="margin-top:10px"></input><br/>
+            <input type="password" id='new-pwd' placeholder="新密码" style="margin-top:10px"></input><br/>
+            <input type="password" id='dup-new-pwd' placeholder="确认新密码" style="margin-top:10px"></input><br/>
         </div>
         <br/>
-        <p align="center"><a class="btn btn-embossed btn-primary" href="javacript:" role="button">提交</a></p>
+        <p align="center"><a class="btn btn-embossed btn-primary" id="change-info" href="javacript:" role="button">提交</a></p>
     </div>
 
 	   <!-- JavaScript -->

@@ -8,6 +8,7 @@
     let PWD_INCORRECT = 2
     let LOGIN_SUCCESS = 3
 
+
     $("#login-btn").on("click", function(){
         console.log("submit")
         console.log($("#login-username").val())
@@ -161,11 +162,22 @@
     });
     
     $("#memory").on("click", function(){
-        location.href = 'memorize_in/'
+        if($.cookie('username') && $.cookie('password')){
+            location.href = 'memorize_in/'
+        }else{
+            alert("您还没有登陆")
+            location.href = '/login'
+        }
+        
     });
     
     $("#test").on("click", function(){
-        location.href = 'test_in/'
+        if($.cookie('username') && $.cookie('password')){
+            location.href = 'test_in/'
+        }else{
+            alert("您还没有登陆")
+            location.href = '/login'
+        }
     });
     
     $("#trans").on("click", function(){
