@@ -169,7 +169,7 @@ def memorize_in_handler(request):
         return HttpResponse(json.dumps({"memorize_in" : cfg.MEM_IN_SUCCESS}))
 
 @csrf_exempt
-def memorize_handler(request):
+def memorize_in_handler(request):
     dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
     DBSession = connectDB(dburl)
     session = DBSession()
@@ -180,12 +180,10 @@ def memorize_handler(request):
     else:
         return HttpResponse(json.dumps({"memorize_in" : cfg.MEM_IN_SUCCESS}))
 
-def recite(request):
-    # 指定要访问的页面，render的功能：讲请求的页面结果提交给客户端
-    return render(request, 'recite.html')
 
-def recitevoc(request):
-    type = {1: '四级词汇', 2: '六级词汇', 3: '托福词汇', 4: 'GRE词汇'}
+@csrf_exempt
+def memorize_handler(request):
+    vocab_type = {1: '四级词汇', 2: '六级词汇', 4: '托福词汇', 8: 'GRE词汇'}
     a = request.GET
     dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
     DBSession = connectDB(dburl)
@@ -232,13 +230,13 @@ def recitevoc(request):
     session.close()
     # print(review_list)
     words = {}
-    words['vocab_type'] = type[user.sel_thesaurus]  # 词库种类
+    words['vocab_type'] = vocab_type[user.sel_thesaurus]  # 词库种类
     words['review_num'] = review_num  # 复习单词个数
     words['recite_num'] = user.plan_vocnum  # 背诵单词个数
     words['review'] = review_dict   # 复习但系
     words['recite'] = recite_dict  #背诵单词
     print(words)
-    return HttpResponse(words)
+    return HttpResponse(json.dumps(words))
 
 def setup(request):
     a = request.GET

@@ -3,32 +3,7 @@
 
     let NOT_SELECT_VOCAB = 1;
     let MEM_IN_SUCCESS = 2;
-    $("#start-memory").on("click", function(){
-        /* ajax 提交表单，获取本次需要背诵的词库 */
-        console.log("start-memory!")
-        $.ajax({
-            //几个参数需要注意
-            type: "POST",//方法类型
-            dataType: "json",//预期服务器返回的数据类型
-            url: "/app/memorize_in/memorize_in_handler/" ,//url
-            data: {
-            },
-            success: function (result) {
-                result = result['memorize_in']
-                console.log(typeof(result))
-                if(result == NOT_SELECT_VOCAB){
-                    alert("您还没有选择词库，请选择你想要背诵的词库和计划")
-                    location.href = '/setting/'
-                }else if(result == MEM_IN_SUCCESS){
-                    alert("开始背诵")
-                    location.href = '/app/memorize_in/memorize/'
-                }
-            },
-            error : function(e) {
-                alert("异常！");
-            }
-        });
-    });
+    
 
     $("#stop-memorize").on("click", function(){
         /* ajax 提交表单，获取本次需要背诵的词库 */
@@ -38,52 +13,25 @@
 
     $(document).ready(function(){
         /* ajax 提交表单，获取本次需要背诵的单词 */
+        $.ajax({
+            //几个参数需要注意
+            type: "POST",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/app/memorize/memorize_handler/" ,//url
+            data: {},
+            success: function(result){
+                handle(result);
+            },
+            error : function(e) {
+                alert("异常！");
+            }
+        });
+        
+    })
 
+    function handle(result){
         /* 前端逻辑处理 */
-        var words = {
-            vocab_type: "六级词汇",
-            review_num: 3,
-            recite_num: 2,
-            review: [
-                {
-                    id: 18,
-                    word: "apple",
-                    pron: "[ˈæpl]",
-                    correct: "n.苹果",
-                    index: 0
-                },
-                {
-                    id: 19,
-                    word: "banana",
-                    pron: "[bəˈnɑːnə]",
-                    correct: "n.香蕉",
-                    index: 0
-                },
-                {
-                    id: 20,
-                    word: "grape",
-                    pron: "[ɡreɪp]",
-                    correct: "n.葡萄",
-                    index: 0
-                }
-            ],
-            recite:[
-                {
-                    id: 4,
-                    word: "JavaScript",
-                    pron: "[----]",
-                    correct: "n.一种编程语言",
-                    index: 0
-                },
-                {
-                    id: 8,
-                    word: "PHP",
-                    pron: "[pieichipi]",
-                    correct: "世界上最好的编程语言",
-                    index: 0
-                }
-            ]
-        }
+        var words = result;
         var seq = 0;
         var recite_queue = words["recite"];
         var review_queue = words["review"];
@@ -93,15 +41,23 @@
         localStorage.setItem("review_queue", JSON.stringify(review_queue));
         localStorage.setItem("words", JSON.stringify(words));
         localStorage.setItem("seq", seq);
-        localStorage.setItem("mode", "review")
+        if(words.review_num != 0){
+            localStorage.setItem("mode", "review")
+        }else{
+            localStorage.setItem("mode", "recite")
+        }
         vocab_type = words["vocab_type"];
         $(".current-vocab").html("<p>当前词库：<font color='blue'>" + vocab_type + "</font></p>")    
         var mode = getCurrentMode();
         render_html(words, seq, mode);
         localStorage.setItem("seq", seq + 1);
-    })
+    }
 
     function render_html(words, seq, mode){
+        $(".correct-answer").hide();
+        $("#not-familiar").hide();
+        $("#not-determined").hide();
+        $("#familiar").hide();
         console.log(mode);
         if(mode == "review"){
             review = getReviewQueue();
@@ -110,7 +66,8 @@
             var word_pron = word["pron"];
             var word_spell = word["word"];
             $(".memory-progress").html("<p>进度：<font color='red'>" + (seq + 1) + "</font>/" + review_num + "</p>");
-            $(".word").html(word_spell + ' ' + word_pron);
+            $(".word").html(word_spell);
+            $(".pron").html(word_pron);
             $(".current-mode > p:first").html("<p>当前您正在：<font color='red'>复习</font></p>")
         }
         else if(mode == "recite"){
@@ -120,7 +77,8 @@
             var word_pron = word["pron"];
             var word_spell = word["word"];
             $(".memory-progress").html("<p>进度：<font color='red'>" + (seq + 1) + "</font>/" + recite_num + "</p>");
-            $(".word").html(word_spell + ' ' + word_pron);
+            $(".word").html(word_spell);
+            $(".pron").html(word_pron);
             $(".current-mode > p:first").html("<p>当前您正在：<font color='red'>背诵</font></p>")
         }else{
             recite = getReciteReviewQueue();
@@ -130,8 +88,13 @@
             var word_spell = word["word"];
             /* 复习刚背诵的单词时， 隐藏进度 */
             $(".memory-progress").hide();
-            $(".word").html(word_spell + ' ' + word_pron);
+            $(".word").html(word_spell);
+            $(".pron").html(word_pron);
             $(".current-mode > p:first").html("<p>当前您正在：<font color='red'>复习背诵的新单词</font></p>")
+            $(".prompt").html("还记得这个单词吗?")
+            $("#not-familiar").html("不记得");
+            $("#not-determined").html("模糊");
+            $("#familiar").html("记得");
         }
         
     }
@@ -194,7 +157,7 @@
     function updateIndex(select_content, seq, mode){
 
         if(mode == 'review'){
-            if(select_content == "认识"){
+            if(select_content == "认识" || select_content == "记得"){
                 decIndex(2, seq);
             }else if(select_content == "模糊"){
                 decIndex(1, seq)
@@ -202,7 +165,7 @@
                 /* 复习时不认识： 则不做任何操作 */
             }
         }else if(mode == "recite"){
-            if(select_content == "认识"){
+            if(select_content == "认识" || select_content == "记得"){
                 /* 背诵时认识， 不做任何操作 */
             }else if(select_content == "模糊"){
                 incIndex(1, seq);
@@ -211,7 +174,7 @@
             }
         }else{
             /* 复习所背诵的新单词，不更新指数，只将不认识/模糊，重新入队 */
-            if(select_content == "认识"){
+            if(select_content == "认识" || select_content == "记得"){
                 /* 复习新单词时认识， 不做任何操作 */
             }else{
                 recite_review_queue = getReciteReviewQueue();
@@ -374,8 +337,11 @@
         else
             correct = getCorrectWord(seq - 1, mode);
         $(".correct-answer").html("<h3 class='correct-answer'><font color='green'>" + correct + "</font></h3>")
-        var correct = $(".correct-answer").toggle();
-
+        $(".correct-answer").show();
+        $("#not-familiar").show();
+        $("#not-determined").show();
+        $("#familiar").show();
+        $(".prompt").html("请根据您对单词认识程度选择以下选项中的一个：")   
     });
 
     $('.selection').click(function(e){

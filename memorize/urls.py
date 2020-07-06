@@ -20,8 +20,6 @@ from memorize import views
 urlpatterns = [
     path('admin/', admin.site.urls),#系统默认创建的
     path('login/',views.login),#用于打开登录页面
-    path('recite/',views.recite),#用于打开登录页面
-    path('recite/recitevoc/',views.recitevoc),#用于打开登录页面
     path('register/',views.register),#用于打开注册页面
     path('register/save/',views.save),#输入用户名密码后交给后台save函数处理
     path('login/query/',views.query),#输入用户名密码后交给后台query函数处理
@@ -32,8 +30,8 @@ urlpatterns = [
     path('app/memorize_in/', views.memorize_in),
     path('app/memorize_in/memorize_in_handler/', views.memorize_in_handler),
 
-    path('app/memorize_in/memorize/', views.memorize),
-    path('app/memorize_in/memorize/memorize_handler/', views.memorize_handler),
+    path('app/memorize/', views.memorize),
+    path('app/memorize/memorize_handler/', views.memorize_handler),
 
     path('app/test_in/', views.test_in),
     path('app/test_in/test/', views.test),
