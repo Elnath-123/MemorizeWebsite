@@ -1,5 +1,5 @@
 """
-ASGI config for untitled project.
+ASGI config for memorize project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'untitled.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'memorize.settings')
 
 application = get_asgi_application()

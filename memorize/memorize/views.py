@@ -1,10 +1,12 @@
-from django.shortcuts import render
+from django.http import response
+from django.shortcuts import render, redirect
 from django.shortcuts import HttpResponse
-from .user import User, All_voc, Review, connectDB
+from .voc import User, All_voc, Review, connectDB
 from sqlalchemy.sql import operators
+from django.views.decorators.csrf import csrf_exempt
 import json
 from sqlalchemy.orm import join
-
+import memorize.cfg as cfg
 
 def row2dict(row):
     d = {}
@@ -27,6 +29,34 @@ def register(request):
 def setting(request):
     return render(request, 'setting.html',{"vocab_type": json.dumps('六级词库'),"plan_num": json.dumps(30)})
 
+def toMainPage(request):
+    return render(request, "app.html")
+
+# 背诵页面
+def memorize_in(request):
+    # 指定要访问的页面，render的功能：讲请求的页面结果提交给客户端
+    return render(request, 'memorize_in.html')
+
+def memorize(request):
+    print("hello")
+    # 指定要访问的页面，render的功能：讲请求的页面结果提交给客户端
+    return render(request, 'memorize.html')
+
+#测验页面
+def test_in(request):
+    # 指定要访问的页面，render的功能：讲请求的页面结果提交给客户端
+    return render(request, 'test_in.html')
+
+def test(request):
+    # 指定要访问的页面，render的功能：讲请求的页面结果提交给客户端
+    return render(request, 'test.html')
+
+#中英互译
+def translation(request):
+    # 指定要访问的页面，render的功能：讲请求的页面结果提交给客户端
+    return render(request, 'translation.html')
+
+
 def save_set(request):
     type = {1: '四级词汇', 2: '六级词汇', 3: '托福词汇', 4: 'GRE词汇'}
     a = request.POST  # 获取post()请求
@@ -40,7 +70,7 @@ def save_set(request):
     # vocab_type = a.get()
     # plan_num = a.get('plan_num')
 
-    dburl = 'mysql+mysqlconnector://root:w721721J@localhost:3306/voc'
+    dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
     DBSession = connectDB(dburl)
     session = DBSession()
     userName = request.session.get('user_id')
@@ -53,24 +83,27 @@ def save_set(request):
     session.close()
 
 # 定义一个函数，用来保存注册的数据
+@csrf_exempt
 def save(request):
-    a = request.GET  # 获取get()请求
+    a = request.POST  # 获取post请求
     # print(a)
     # 通过get()请求获取前段提交的数据
     userName = a.get('username')
     passWord = a.get('password')
-
-    dburl = 'mysql+mysqlconnector://root:w721721J@localhost:3306/voc'
+    print(userName)
+    print(passWord)
+    dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
     DBSession = connectDB(dburl)
     session = DBSession()
 
     users = session.query(User).filter(User.user_id == userName).all()
-    i = 0
+
     for item in users:
         if item:
             # 表示该账号已经存在
             session.close()
-            return HttpResponse('该账号已存在')
+            return HttpResponse(json.dumps({"register": cfg.USER_EXIST}))
+            
     new_user = User(user_id=userName, user_pwd=passWord)
     # 添加到session:
     session.add(new_user)
@@ -78,42 +111,49 @@ def save(request):
     session.commit()
     # 关闭session:
     session.close()
-    return HttpResponse('注册成功')
+    return HttpResponse(json.dumps({"register": cfg.REG_SUCCESS}))
 
-
+@csrf_exempt
 def query(request):
+    print("success")
     a = request.POST
     userName = a.get('username')
     passWord = a.get('password')
     request.session['user_id'] = userName
     # 创建session对象:
-    dburl = 'mysql+mysqlconnector://root:w721721J@localhost:3306/voc'
+    dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
     DBSession = connectDB(dburl)
     session = DBSession()
     print(userName)
+    print(passWord)
     try:
         user = session.query(User).filter(User.user_id == userName).one()
     except Exception:
-        return HttpResponse("no such user")
+        print("error")
+        return HttpResponse(json.dumps({"login": cfg.USER_NOTEXIST}))
     finally:
         session.close()
+    print(user.user_pwd)
 
     if user.user_pwd == passWord:
-        return HttpResponse("success")
-    else:
-        return HttpResponse("password not correct")
-    session.close()
+        # 设置cookie和session
+        res = HttpResponse(json.dumps({"login": cfg.LOGIN_SUCCESS}))
+        res.set_cookie("username", userName, expires=cfg.COOKIE_EXPIRE)
+        res.set_cookie("password", passWord, expires=cfg.COOKIE_EXPIRE)
 
+        return 
+    else:
+        return HttpResponse(json.dumps({"login": cfg.PWD_INCORRECT}))
+    session.close()
 
 def recite(request):
     # 指定要访问的页面，render的功能：讲请求的页面结果提交给客户端
     return render(request, 'recite.html')
 
-
 def recitevoc(request):
     type = {1: '四级词汇', 2: '六级词汇', 3: '托福词汇', 4: 'GRE词汇'}
     a = request.GET
-    dburl = 'mysql+mysqlconnector://root:w721721J@localhost:3306/voc'
+    dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
     DBSession = connectDB(dburl)
     session = DBSession()
     userName = request.session.get('user_id')
@@ -170,7 +210,7 @@ def setup(request):
     a = request.GET
     newpwd= a.get('passward')
     newtype = a.get('voctype')
-    dburl = 'mysql+mysqlconnector://root:w721721J@localhost:3306/voc'
+    dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
     DBSession = connectDB(dburl)
     session = DBSession()
     userName = request.session.get('user_id')
@@ -180,7 +220,7 @@ def setup(request):
 '''
 def test(request):
     a = request.GET
-    dburl = 'mysql+mysqlconnector://root:w721721J@localhost:3306/voc'
+    dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
     DBSession = connectDB(dburl)
     session = DBSession()
     userName = request.session.get('user_id')
