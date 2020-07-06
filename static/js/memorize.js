@@ -1,29 +1,13 @@
 
-/* 中英互译转换 */
-$(".switch-btn").on("click", function(){
-    var current_mode = $(".b-translate > p:first");
-    var current_mode_textarea = $(".b-translate > textarea:first");
 
-    var translate_to = $(".a-translate > p:first");
-    var translate_to_textarea = $(".a-translate > textarea:first");
-
-    if(current_mode.html() == "中文"){
-        current_mode.html("英文");
-        translate_to.html("中文");
-        current_mode_textarea.attr("placeholder", "Please enter the English to be translated");
-    }else{
-        current_mode.html("中文");
-        translate_to.html("英文");
-        current_mode_textarea.attr("placeholder", "请输入需要翻译的中文");
-    }
-    /* ajax提交表单 */
+$("#start-memory").on("click", function(){
+    /* ajax 提交表单，获取本次需要背诵的词库 */
+    location.href="memorize/"
 });
 
-
-$('.outer-memorize-in').on("click", function(){
+$("#stop-memorize").on("click", function(){
     /* ajax 提交表单，获取本次需要背诵的词库 */
-    
-    console.log(words);
+    location.href="/app/"
 });
 
 $(document).ready(function(){
@@ -114,8 +98,6 @@ function render_html(words, seq, mode){
         $(".current-mode > p:first").html("<p>当前您正在：<font color='red'>背诵</font></p>")
     }else{
         recite = getReciteReviewQueue();
-        //console.log(recite.length);
-        //console.log(recite[0]);
         if(!recite.length) return;
         var word = recite.shift();
         var word_pron = word["pron"];
@@ -263,7 +245,7 @@ function judgeExit(words, seq, mode){
 
 function reciteEnd(){
     alert("背诵结束");
-    location.href = "app.html"
+    location.href = "/app/"
 }
 
 function decIndex(num, seq=0){
