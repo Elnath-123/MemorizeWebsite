@@ -104,9 +104,6 @@
         });
     });
 
-
-
-
     function validate (input) {
         if($(input).attr('type') == 'email' || $(input).attr('name') == 'email') {
             if($(input).val().trim().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{1,5}|[0-9]{1,3})(\]?)$/) == null) {
@@ -133,8 +130,30 @@
         $(thisAlert).removeClass('alert-validate');
     }
     
+    // 根据cookie连接情况，显示动态页面
+    $(document).ready(function(){
+        
+        if($.cookie('username') && $.cookie('password')){
+            console.log($.cookie('username'))
+            console.log($.cookie('password'))
+            $("#register-item").hide();
+            $("#login-item").hide();
+            $("#nav-bar").append("<li class='menuItem' id='setting-item'><a href='/setting'>Setting</a></li>")
+            $("#nav-bar").append("<li class='menuItem' id='logout-item'><a href='/app'> logout </a></li>")
+        }else{
+            $("#register-item").show();
+            $("#login-item").show();
+            $("#setting-item").remove();
+            $("logout-item").remove();
+        }
+    });
     
-    
+    $("#nav-bar").on("click", "#logout-item", function(){
+        console.log("logout")
+        $.removeCookie("username",{ path: '/'})
+        $.removeCookie("password",{ path: '/'})
+    })
+
     $('.input100').each(function(){
         $(this).focus(function(){
            hideValidate(this);
