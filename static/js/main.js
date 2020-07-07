@@ -28,7 +28,7 @@
         //几个参数需要注意
             type: "POST",//方法类型
             dataType: "json",//预期服务器返回的数据类型
-            url: "/login/query/" ,//url
+            url: "/login/login_handler/" ,//url
             data: {"username" : $("#login-username").val(),
                 "password" : $("#login-userpwd").val(),
             },
@@ -181,10 +181,12 @@
     });
     
     $("#trans").on("click", function(){
-        console.log("hi")
         location.href = '/app/translation/'
     });
-        
+    
+    $("#query").on("click", function(){
+        location.href = '/app/query/'
+    });
 
 })(jQuery);
 
