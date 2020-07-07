@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from sqlalchemy.orm import join
 import memorize.cfg as cfg
-import math
+import random
 
 def row2dict(row):
     d = {}
@@ -33,6 +33,8 @@ def setting(request):
 def toMainPage(request):
     return render(request, "app.html")
 
+# 单词查询页面
+
 # 背诵页面
 def memorize_in(request):
     # 指定要访问的页面，render的功能：讲请求的页面结果提交给客户端
@@ -52,12 +54,16 @@ def test(request):
     # 指定要访问的页面，render的功能：讲请求的页面结果提交给客户端
     return render(request, 'test.html')
 
+# 单词查询页面
+def query(request):
+    return render(request, 'query.html')
+
 #中英互译
 def translation(request):
     # 指定要访问的页面，render的功能：讲请求的页面结果提交给客户端
     return render(request, 'translation.html')
 
-
+# 保存用户设置的数据
 @csrf_exempt
 def save_set(request):
     a = request.POST  # 获取post()请求
@@ -91,7 +97,7 @@ def save_set(request):
     session.close()
     return HttpResponse(json.dumps({"setting": cfg.SET_SUCCESS}))
 
-# 定义一个函数，用来保存注册的数据
+# 保存注册的数据
 @csrf_exempt
 def save(request):
     a = request.POST  # 获取post请求
@@ -122,8 +128,9 @@ def save(request):
     session.close()
     return HttpResponse(json.dumps({"register": cfg.REG_SUCCESS}))
 
+# 登陆验证
 @csrf_exempt
-def query(request):
+def login_handler(request):
     print("success")
     a = request.POST
     userName = a.get('username')
@@ -154,18 +161,22 @@ def query(request):
         return HttpResponse(json.dumps({"login": cfg.PWD_INCORRECT}))
     session.close()
 
+# 返回用户是否选择了词库
 @csrf_exempt
-def memorize_in_handler(request):
+def in_handler(request):
     dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
     DBSession = connectDB(dburl)
     session = DBSession()
     userName = request.session.get('user_id')
     user = session.query(User).filter(User.user_id == userName).one()
+    if not user:
+        return HttpResponse(json.dumps({"in" : cfg.USER_EXPIRE}))
     if(not user.sel_thesaurus):
-        return HttpResponse(json.dumps({"memorize_in" : cfg.NOT_SELECT_VOCAB}))
+        return HttpResponse(json.dumps({"in" : cfg.NOT_SELECT_VOCAB}))
     else:
-        return HttpResponse(json.dumps({"memorize_in" : cfg.MEM_IN_SUCCESS}))
+        return HttpResponse(json.dumps({"in" : cfg.MEM_IN_SUCCESS}))
 
+# 背诵单词结束，结算陌生指数
 @csrf_exempt
 def memorize_out_handler(request):
     dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
@@ -223,8 +234,8 @@ def memorize_out_handler(request):
     if user.com_vocnum == recite_num:
         return HttpResponse(json.dumps({"memorize_out": cfg.MEM_FINISH_VOCAB}))
     return HttpResponse(json.dumps({"memorize_out" : cfg.MEM_OUT_SUCCESS}))
-        
 
+# 进入背诵单词， 返回本次背诵的单词
 @csrf_exempt
 def memorize_handler(request):
     vocab_type = {1: '四级词汇', 2: '六级词汇', 4: '托福词汇', 8: 'GRE词汇'}
@@ -282,6 +293,96 @@ def memorize_handler(request):
         complete = True
     return HttpResponse(json.dumps({"words": words, "complete": True}))
 
+# 单选题测验
+@csrf_exempt
+def test_choice(request):
+    dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
+    DBSession = connectDB(dburl)
+    session = DBSession()
+    userName = request.session.get('user_id')
+    #userName = 'littlej'
+    test_voc = {}
+    user = session.query(User).filter(User.user_id == userName).one()
+    all_voc = session.query(All_voc).filter(operators.op(All_voc.thesaurus, '&', user.sel_thesaurus)).all()
+    cnt = len(all_voc)
+    index = random.sample(range(0, cnt), 20) # 生成20个测验单词id
+    test_word = []
+    for i in range(20):
+        item_dict = {}
+        item_dict["id"] = all_voc[index[i]].voc_id
+        item_dict["word"] = all_voc[index[i]].spelling
+        item_dict["pron"] = all_voc[index[i]].pronunciation
+        item_dict["correct"] = all_voc[index[i]].translation
+        options = [] # 四个选项
+        wrong = random.sample(range(0, cnt), 3)
+        for j in range(3):
+            options.append(all_voc[wrong[j]].translation)
+        options.append(all_voc[index[i]].translation)
+        random.shuffle(options) # 随机打乱选项
+        item_dict["options"] = options
+        test_word.append(item_dict)
+    if not user.sel_thesaurus:
+        test_voc['select_vocab'] = False
+    else:
+        test_voc['select_vocab'] = True
+    test_voc['test_num'] = 20
+    test_voc['test_word'] = test_word
+    print(test_voc)
+    session.close()
+    return HttpResponse(json.dumps({"words": test_voc}))
+
+# 拼写题目测验
+@csrf_exempt
+def test_spelling(request):
+    dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
+    DBSession = connectDB(dburl)
+    session = DBSession()
+    #userName = request.session.get('user_id')
+    userName = 'littlej'
+    test_voc = {} # 测试的单词
+    test_word = []
+    user = session.query(User).filter(User.user_id == userName).one()
+    all_voc = session.query(All_voc).filter(operators.op(All_voc.thesaurus, '&', user.sel_thesaurus)).all()
+    cnt = len(all_voc)
+    index = random.sample(range(0, cnt), 20)  # 生成20个测验单词id
+    for i in range(20):
+        item_dict = {}
+        item_dict["id"] = all_voc[index[i]].voc_id
+        item_dict["word"] = all_voc[index[i]].spelling
+        item_dict["pron"] = all_voc[index[i]].pronunciation
+        item_dict["correct"] = all_voc[index[i]].translation
+        length = len(all_voc[index[i]].spelling)
+        position = random.randint(0,length//2+1)  #appleapple 10 6   0，1，2，3，4，5
+        position_list = []
+        position_list.append(position)
+        position_list.append(position+length//2-1)
+        item_dict["position"] = position_list
+        test_word.append(item_dict)
+    if not user.sel_thesaurus:
+       test_voc['select_vocab'] = False
+    else:
+        test_voc['select_vocab'] = True
+    test_voc['test_num'] = 20
+    test_voc['test_word'] = test_word
+    print(test_voc)
+    session.close()
+    return HttpResponse(test_voc)
+
+# 测验结束，结算测验分数，测验时间
+@csrf_exempt
+def test_out_handler(request):
+    a = request.POST
+    dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
+    DBSession = connectDB(dburl)
+    session = DBSession()
+    time = a.get()
+    score = a.get()
+    type = a.get()
+    userName = request.session.get('user_id')
+    test = Test(user_id=userName, test_time=time, score=score, type=type)
+    session.add(test)
+    session.commit()
+    session.close()
 
 def setup(request):
     a = request.GET

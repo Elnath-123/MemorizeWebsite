@@ -26,5 +26,6 @@ MEM_IN_SUCCESS = 2
 MEM_FINISH_VOCAB = 3
 MEM_OUT_SUCCESS = 4
 
-# Cookie
+# Cookie/连接
 COOKIE_EXPIRE = 60 * 30 # 10 minutes
+USER_EXPIRE = 203

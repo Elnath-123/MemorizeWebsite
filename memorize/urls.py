@@ -22,19 +22,23 @@ urlpatterns = [
     path('login/',views.login),#用于打开登录页面
     path('register/',views.register),#用于打开注册页面
     path('register/save/',views.save),#输入用户名密码后交给后台save函数处理
-    path('login/query/',views.query),#输入用户名密码后交给后台query函数处理
+    path('login/login_handler/',views.login_handler),#输入用户名密码后交给后台query函数处理
     path('setting/',views.setting),#用于打开登录页面
     path('setting/saveset/',views.save_set),#用于后台处理设置
     path('app/', views.toMainPage),
 
     path('app/memorize_in/', views.memorize_in),
-    path('app/memorize_in/memorize_in_handler/', views.memorize_in_handler),
-
-    path('app/memorize/', views.memorize),
-    path('app/memorize/memorize_handler/', views.memorize_handler),
-
-    path('app/memorize_out_handler/', views.memorize_out_handler),
     path('app/test_in/', views.test_in),
+
+    path('app/in_handler/', views.in_handler),
+    path('app/memorize/', views.memorize),
+    path('app/memorize_handler/', views.memorize_handler),
+    path('app/memorize_out_handler/', views.memorize_out_handler),
+
+    path('app/test/test_choice/', views.test_choice),
+    path('app/test/test_spelling/', views.test_spelling),
+
     path('app/test/', views.test),
+    path('app/query/', views.query),
     path('app/translation/', views.translation)
 ]
