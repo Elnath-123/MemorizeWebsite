@@ -33,7 +33,8 @@ urlpatterns = [
     path('app/memorize/', views.memorize),
     path('app/memorize/memorize_handler/', views.memorize_handler),
 
+    path('app/memorize_out_handler/', views.memorize_out_handler),
     path('app/test_in/', views.test_in),
-    path('app/test_in/test/', views.test),
+    path('app/test/', views.test),
     path('app/translation/', views.translation)
 ]

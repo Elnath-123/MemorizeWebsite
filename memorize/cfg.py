@@ -23,5 +23,8 @@ __C['gre'] = VOCAB_GRE
 #背诵准备(memorize-in)
 NOT_SELECT_VOCAB = 1
 MEM_IN_SUCCESS = 2
+MEM_FINISH_VOCAB = 3
+MEM_OUT_SUCCESS = 4
+
 # Cookie
 COOKIE_EXPIRE = 60 * 30 # 10 minutes

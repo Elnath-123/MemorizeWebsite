@@ -4,7 +4,7 @@
     let NOT_SELECT_VOCAB = 1;
     let MEM_IN_SUCCESS = 2;
     
-
+    var g_words = {};
     $("#stop-memorize").on("click", function(){
         /* ajax 提交表单，获取本次需要背诵的词库 */
         
@@ -15,18 +15,22 @@
         /* ajax 提交表单，获取本次需要背诵的单词 */
         $.ajax({
             //几个参数需要注意
+            async:false,
             type: "POST",//方法类型
             dataType: "json",//预期服务器返回的数据类型
             url: "/app/memorize/memorize_handler/" ,//url
             data: {},
             success: function(result){
-                handle(result);
+ 
+                g_words = result["words"]
+                console.log(g_words)
             },
             error : function(e) {
                 alert("异常！");
             }
         });
-        
+        console.log(g_words)
+        handle(g_words)
     })
 
     function handle(result){
@@ -234,7 +238,30 @@
 
     function reciteEnd(){
         alert("背诵结束");
-        location.href = "/app/"
+        /* ajax 提交陌生指数、背诵单词个数 */
+        words = getWords()
+        recite_queue = getReciteQueue()
+        review_queue = getReviewQueue()
+        words["recite"] = recite_queue;
+        words["review"] = review_queue;
+        words = JSON.stringify(words)
+        console.log("??!")
+        $.ajax({
+            //几个参数需要注意
+            async:false,
+            type: "POST",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/app/memorize_out_handler/",//url
+            data: {"words" : words},
+            success: function(result){
+                console.log(result)
+                location.href = "/app/"
+            },
+            error : function(e) {
+                alert("异常！");
+            }
+        });
+        
     }
 
     function decIndex(num, seq=0){

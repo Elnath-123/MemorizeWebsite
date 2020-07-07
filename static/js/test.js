@@ -1,7 +1,7 @@
 $('#test-start').on("click", function(){
     /* ajax 提交表单，获取本次需要背诵的词库 */
     
-    location.href='/app/test_in/test'
+    location.href='/app/test'
 });
 
 $('#return-main').on("click", function(){
