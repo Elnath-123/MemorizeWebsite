@@ -28,7 +28,7 @@
         //几个参数需要注意
             type: "POST",//方法类型
             dataType: "json",//预期服务器返回的数据类型
-            url: "/login/query" ,//url
+            url: "/login/query/" ,//url
             data: {"username" : $("#login-username").val(),
                 "password" : $("#login-userpwd").val(),
             },
@@ -84,7 +84,7 @@
         //几个参数需要注意
             type: "POST",//方法类型
             dataType: "json",//预期服务器返回的数据类型
-            url: "/register/save" ,//url
+            url: "/register/save/" ,//url
             data: {"username" : username,
                    "password" : pwd,
             },
