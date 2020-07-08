@@ -18,7 +18,7 @@
             async:false,
             type: "POST",//方法类型
             dataType: "json",//预期服务器返回的数据类型
-            url: "/app/memorize/memorize_handler/" ,//url
+            url: "/app/memorize_handler/" ,//url
             data: {},
             success: function(result){
  

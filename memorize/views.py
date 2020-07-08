@@ -1,7 +1,7 @@
 from django.http import response
 from django.shortcuts import render, redirect
 from django.shortcuts import HttpResponse
-from .voc import User, All_voc, Review, connectDB
+from .voc import User, All_voc, Review, Test, connectDB
 from sqlalchemy.sql import operators
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -50,9 +50,12 @@ def test_in(request):
     # 指定要访问的页面，render的功能：讲请求的页面结果提交给客户端
     return render(request, 'test_in.html')
 
-def test(request):
+def test_choice(request):
     # 指定要访问的页面，render的功能：讲请求的页面结果提交给客户端
     return render(request, 'test.html')
+
+def test_spelling(request):
+    return render(request, 'test_spelling.html')
 
 # 单词查询页面
 def query(request):
@@ -295,7 +298,7 @@ def memorize_handler(request):
 
 # 单选题测验
 @csrf_exempt
-def test_choice(request):
+def test_choice_handler(request):
     dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
     DBSession = connectDB(dburl)
     session = DBSession()
@@ -305,9 +308,9 @@ def test_choice(request):
     user = session.query(User).filter(User.user_id == userName).one()
     all_voc = session.query(All_voc).filter(operators.op(All_voc.thesaurus, '&', user.sel_thesaurus)).all()
     cnt = len(all_voc)
-    index = random.sample(range(0, cnt), 20) # 生成20个测验单词id
+    index = random.sample(range(0, cnt), cfg.TEST_CHOICE) # 生成20个测验单词id
     test_word = []
-    for i in range(20):
+    for i in range(cfg.TEST_CHOICE):
         item_dict = {}
         item_dict["id"] = all_voc[index[i]].voc_id
         item_dict["word"] = all_voc[index[i]].spelling
@@ -325,7 +328,7 @@ def test_choice(request):
         test_voc['select_vocab'] = False
     else:
         test_voc['select_vocab'] = True
-    test_voc['test_num'] = 20
+    test_voc['test_num'] = cfg.TEST_CHOICE
     test_voc['test_word'] = test_word
     print(test_voc)
     session.close()
@@ -333,7 +336,7 @@ def test_choice(request):
 
 # 拼写题目测验
 @csrf_exempt
-def test_spelling(request):
+def test_spelling_handler(request):
     dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
     DBSession = connectDB(dburl)
     session = DBSession()
@@ -344,8 +347,8 @@ def test_spelling(request):
     user = session.query(User).filter(User.user_id == userName).one()
     all_voc = session.query(All_voc).filter(operators.op(All_voc.thesaurus, '&', user.sel_thesaurus)).all()
     cnt = len(all_voc)
-    index = random.sample(range(0, cnt), 20)  # 生成20个测验单词id
-    for i in range(20):
+    index = random.sample(range(0, cnt), cfg.TEST_SPELLING)  # 生成20个测验单词id
+    for i in range(cfg.TEST_SPELLING):
         item_dict = {}
         item_dict["id"] = all_voc[index[i]].voc_id
         item_dict["word"] = all_voc[index[i]].spelling
@@ -362,11 +365,11 @@ def test_spelling(request):
        test_voc['select_vocab'] = False
     else:
         test_voc['select_vocab'] = True
-    test_voc['test_num'] = 20
+    test_voc['test_num'] = cfg.TEST_SPELLING
     test_voc['test_word'] = test_word
     print(test_voc)
     session.close()
-    return HttpResponse(test_voc)
+    return HttpResponse(json.dumps({"words":test_voc}))
 
 # 测验结束，结算测验分数，测验时间
 @csrf_exempt
@@ -375,11 +378,11 @@ def test_out_handler(request):
     dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
     DBSession = connectDB(dburl)
     session = DBSession()
-    time = a.get()
-    score = a.get()
-    type = a.get()
+    time = a.get("time")
+    score = a.get("score")
+    test_type = a.get("type")
     userName = request.session.get('user_id')
-    test = Test(user_id=userName, test_time=time, score=score, type=type)
+    test = Test(user_id=userName, test_time=time, score=score, type=test_type)
     session.add(test)
     session.commit()
     session.close()

@@ -37,8 +37,10 @@ urlpatterns = [
 
     path('app/test/test_choice/', views.test_choice),
     path('app/test/test_spelling/', views.test_spelling),
-
-    path('app/test/', views.test),
+    path('app/test/test_choice_handler/', views.test_choice_handler),
+    path('app/test/test_spelling_handler/', views.test_spelling_handler),
+    path('app/test/test_out_handler', views.test_out_handler),
+    
     path('app/query/', views.query),
     path('app/translation/', views.translation)
 ]
