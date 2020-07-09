@@ -100,6 +100,18 @@ def save_set(request):
     session.close()
     return HttpResponse(json.dumps({"setting": cfg.SET_SUCCESS}))
 
+@csrf_exempt
+def fetch_set(request):
+    dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
+    DBSession = connectDB(dburl)
+    userName = request.session.get('user_id')
+    session = DBSession()
+    user = session.query(User).filter(User.user_id == userName).one()
+    if user.plan_vocnum == 0 or not user.sel_thesaurus:
+        return HttpResponse(json.dumps({"result": cfg.NEW_USER, "plan_num": cfg.NEW_USER_PLAN, "vocab": cfg.NEW_USER_VOACB}))
+    return HttpResponse(json.dumps({"result": cfg.OLD_USER, "plan_num": user.plan_vocnum, "vocab": user.sel_thesaurus}))
+
+
 # 保存注册的数据
 @csrf_exempt
 def save(request):
@@ -340,8 +352,8 @@ def test_spelling_handler(request):
     dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
     DBSession = connectDB(dburl)
     session = DBSession()
-    #userName = request.session.get('user_id')
-    userName = 'littlej'
+    userName = request.session.get('user_id')
+    #userName = 'littlej'
     test_voc = {} # 测试的单词
     test_word = []
     user = session.query(User).filter(User.user_id == userName).one()
@@ -386,6 +398,7 @@ def test_out_handler(request):
     session.add(test)
     session.commit()
     session.close()
+    return HttpResponse(json.dumps({"result" : cfg.TEST_SUCCESS}))
 
 def setup(request):
     a = request.GET

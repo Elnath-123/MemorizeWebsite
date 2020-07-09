@@ -72,6 +72,7 @@
             $(".memory-progress").html("<p>进度：<font color='red'>" + (seq + 1) + "</font>/" + review_num + "</p>");
             $(".word").html(word_spell);
             $(".pron").html(word_pron);
+            $(".prompt").html("点击屏幕任何空白位置，显示正确答案");
             $(".current-mode > p:first").html("<p>当前您正在：<font color='red'>复习</font></p>")
         }
         else if(mode == "recite"){
@@ -83,6 +84,7 @@
             $(".memory-progress").html("<p>进度：<font color='red'>" + (seq + 1) + "</font>/" + recite_num + "</p>");
             $(".word").html(word_spell);
             $(".pron").html(word_pron);
+            $(".prompt").html("点击屏幕任何空白位置，显示正确答案");
             $(".current-mode > p:first").html("<p>当前您正在：<font color='red'>背诵</font></p>")
         }else{
             recite = getReciteReviewQueue();

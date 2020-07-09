@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Float, create_engine, Time
+from sqlalchemy import Column, String, Integer, Float, create_engine, DateTime
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -50,7 +50,7 @@ class Test(Base):
     __tablename__ = 'test'
     # 表的结构:
     user_id = Column(String(20), primary_key=True)
-    test_time = Column(Time, primary_key=True)
+    test_time = Column(DateTime, primary_key=True)
     score = Column(Float, nullable=False)
     type = Column(String(20), nullable=False)
 

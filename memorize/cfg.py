@@ -19,6 +19,11 @@ __C['cet-4'] = VOCAB_CET4
 __C['cet-6'] = VOCAB_CET6
 __C['toefl'] = VOCAB_TOEFL
 __C['gre'] = VOCAB_GRE
+NEW_USER = 10
+OLD_USER = 11
+NEW_USER_PLAN = 20
+NEW_USER_VOACB = VOCAB_CET4
+
 
 #背诵准备(memorize-in)
 NOT_SELECT_VOCAB = 1
@@ -27,8 +32,9 @@ MEM_FINISH_VOCAB = 3
 MEM_OUT_SUCCESS = 4
 
 #单词测验
-TEST_CHOICE = 5
-TEST_SPELLING = 5
+TEST_CHOICE = 5   #测验选择题数量
+TEST_SPELLING = 5 #测验拼写题数量
+TEST_SUCCESS = 200
 
 # Cookie/连接
 COOKIE_EXPIRE = 60 * 30 # 10 minutes

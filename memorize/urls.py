@@ -25,6 +25,7 @@ urlpatterns = [
     path('login/login_handler/',views.login_handler),#输入用户名密码后交给后台query函数处理
     path('setting/',views.setting),#用于打开登录页面
     path('setting/saveset/',views.save_set),#用于后台处理设置
+    path('setting/fetch_set/',views.fetch_set),
     path('app/', views.toMainPage),
 
     path('app/memorize_in/', views.memorize_in),
@@ -39,8 +40,8 @@ urlpatterns = [
     path('app/test/test_spelling/', views.test_spelling),
     path('app/test/test_choice_handler/', views.test_choice_handler),
     path('app/test/test_spelling_handler/', views.test_spelling_handler),
-    path('app/test/test_out_handler', views.test_out_handler),
-    
+    path('app/test/test_out_handler/', views.test_out_handler),
+
     path('app/query/', views.query),
     path('app/translation/', views.translation)
 ]
