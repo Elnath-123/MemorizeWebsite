@@ -147,6 +147,8 @@
                 $("body").append("<div>" + key + "  :  " + fault[key] + "<div/>");
             }
             $("#return-main").html("返回主页");
+            var date = new Date().Format("yyyy-MM-dd hh:mm:ss")
+            console.log(date)
             $.ajax({
                 async: false,
                 method: "post",
@@ -154,11 +156,11 @@
                 dataType: "json",
                 data:{
                     "type" : "choice",
-                    "score" : acc,
+                    "score" : (acc * 100).toFixed(2),
                     "time" : date.toLocaleString()
                 },
                 success: function(result){
-
+                    
                 },
                 error : function(e) {
                     alert("异常！");
@@ -181,6 +183,22 @@
         return JSON.parse(localStorage.getItem("words"));
     }
 
+    Date.prototype.Format = function (fmt) { // author: meizz
+        var o = {
+            "M+": this.getMonth() + 1, // 月份
+            "d+": this.getDate(), // 日
+            "h+": this.getHours(), // 小时
+            "m+": this.getMinutes(), // 分
+            "s+": this.getSeconds(), // 秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), // 季度
+            "S": this.getMilliseconds() // 毫秒
+        };
+        if (/(y+)/.test(fmt))
+            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+                return fmt;
+    }
 
     var sp_seq = 0;
     var fault_spelling = {};
@@ -228,8 +246,8 @@
                 $("body").append("<div>" + key + "  :  " + fault_spelling[key] + "<div/>");
             }
             $("#return-main").html("返回主页");
-            var date = new Date();
-
+            var date = new Date().Format("yyyy-MM-dd hh:mm:ss");
+            console.log("date")
             $.ajax({
                 async: false,
                 method: "post",
