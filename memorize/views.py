@@ -211,8 +211,8 @@ def memorize_out_handler(request):
     vocab = session.query(Review).filter(Review.index >= 3).all()
     new_review_word = []
     for i in range(len(vocab)):
-        # 如果指数小于等于0， 则从复习单词表中删除
-        if(vocab[i].index <= 0):
+        # 如果指数小于等于1， 则从复习单词表中删除
+        if(vocab[i].index <= 1):
             session.query(Review).filter(vocab[i].voc_id == review_word[i]["id"]).delete()
             session.commit()
         else:
@@ -240,6 +240,10 @@ def memorize_out_handler(request):
     review_vocab = session.query(Review).all()
     for i in range(len(review_vocab)):
         review_vocab[i].index += 1
+    # 如果背诵完成，将上次背诵的数量清零
+    complete = a.get("complete")
+    if complete:
+        user.last_vocnum = 0
 
     session.add_all(new_review_word)
     session.add_all(review_vocab)
@@ -254,7 +258,7 @@ def memorize_out_handler(request):
 @csrf_exempt
 def memorize_handler(request):
     vocab_type = {1: '四级词汇', 2: '六级词汇', 4: '托福词汇', 8: 'GRE词汇'}
-    a = request.GET
+    a = request.POST
     dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
     DBSession = connectDB(dburl)
     session = DBSession()
@@ -301,12 +305,28 @@ def memorize_handler(request):
     words['vocab_type'] = vocab_type[user.sel_thesaurus]  # 词库种类
     words['review_num'] = review_num  # 复习单词个数
     words['recite_num'] = user.plan_vocnum  # 背诵单词个数
-    words['review'] = review_dict   # 复习但系
+    words['review'] = review_dict   # 复习单词
     words['recite'] = recite_dict  #背诵单词
+    last_num = user.last_vocnum #上次背诵数量
     print(words)
+    complete = False
     if(left_num <= user.plan_vocnum):
         complete = True
-    return HttpResponse(json.dumps({"words": words, "complete": True}))
+    return HttpResponse(json.dumps({"words": words, "last_num": last_num, "complete": complete}))
+
+@csrf_exempt
+# 中途停止背诵，保存进度
+def memorize_stop_handler(request):
+    a = request.POST
+    dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
+    DBSession = connectDB(dburl)
+    session = DBSession()
+    userName = request.session.get('user_id')
+    user = session.query(User).filter(User.user_id == userName).one()
+    last_num = a.get('last_num')
+    user.last_vocnum = last_num
+    session.commit()
+    return HttpResponse(json.dumps({"result": True}))
 
 # 单选题测验
 @csrf_exempt

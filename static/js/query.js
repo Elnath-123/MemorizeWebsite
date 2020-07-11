@@ -9,9 +9,8 @@
     let TIMES_EXCEED = 150;
     
     /* 未登录用户限制 */
-    let NO_LOGIN_LIMIT = 2; //未登录用户最多使用五次
-    var use_times = 0;
-    localStorage.setItem("times", use_times);
+    let NO_LOGIN_LIMIT = 2; //未登录用户最多使用次数
+    localStorage.setItem("times", 0);
     $(document).ready(function(){
         if($.cookie('username') && $.cookie('password')){
             console.log($.cookie('username'))
@@ -29,16 +28,23 @@
         }
 
     });
+    
+    $("#nav-bar").on("click", "#logout-item", function(){
+        console.log("logout")
+        $.removeCookie("username",{ path: '/'})
+        $.removeCookie("password",{ path: '/'})
+    })
 
     $("#submit-query").on("click", function(){
         if( !($.cookie('username') && $.cookie('password'))){
-            use_times = localStorage.getItem("times");
+            use_times = parseInt(localStorage.getItem("times"));
             if(use_times >= NO_LOGIN_LIMIT){
                 alert("未登录用户使用次数超过限制，请登陆后继续使用");
                 location.href = '/login/'
             }
         }
-        localStorage.setItem("times", use_times + 1);
+        localStorage.setItem("times", parseInt(localStorage.getItem("times")) + 1);
+        console.log(localStorage.getItem("times"))
         var query_content = $(".query-input").val();
         $.ajax({
             method: "POST",

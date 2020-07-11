@@ -35,6 +35,7 @@ urlpatterns = [
     path('app/memorize/', views.memorize),
     path('app/memorize_handler/', views.memorize_handler),
     path('app/memorize_out_handler/', views.memorize_out_handler),
+    path('app/memorize_stop_handler/', views.memorize_stop_handler),
 
     path('app/test/test_choice/', views.test_choice),
     path('app/test/test_spelling/', views.test_spelling),
