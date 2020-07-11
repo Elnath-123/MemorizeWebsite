@@ -36,6 +36,7 @@
                 result = result['login']
                 console.log(typeof(result))
                 if(result == LOGIN_SUCCESS){
+                    localStorage.setItem("times", 0);
                     console.log("right")
                     location.href = '/app/'
                 }else if(result == PWD_INCORRECT){

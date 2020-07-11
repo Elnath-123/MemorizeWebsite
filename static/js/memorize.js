@@ -6,9 +6,36 @@
     
     var g_words = {};
     $("#stop-memorize").on("click", function(){
-        /* ajax 提交表单，获取本次需要背诵的词库 */
+        /* 提示用户是否要停止背诵 */
+        if(getCurrentMode() == "recite"){
+            if(confirm("确定要停止背诵吗，您当前的背诵进度将被保留")){
+                /* ajax 提交表单，获取本次需要背诵的词库 */
+                seq = localStorage.getItem("seq");
+                console.log(seq)
+                $.ajax({
+                    //几个参数需要注意
+                    async:false,
+                    type: "POST",//方法类型
+                    dataType: "json",//预期服务器返回的数据类型
+                    url: "/app/memorize_stop_handler/" ,//url
+                    data: {"last_num" : seq - 1},
+                    success: function(result){
+                        if(result['result'] == true){
+                            location.href="/app/"
+                        }
+                    },
+                    error : function(e) {
+                        alert("异常！");
+                    }
+                });
+            }else{
+                /* empty */
+            }
+        }else{
+            location.href="/app/"
+        }
         
-        location.href="/app/"
+       
     });
 
     $(document).ready(function(){
@@ -22,8 +49,21 @@
             data: {},
             success: function(result){
  
-                g_words = result["words"]
-                console.log(g_words)
+                g_words = result["words"];
+                var seq = result["last_num"];
+                if(seq){
+                    if(confirm("检测到您上次背诵单词的记录，是否需要继续背诵？点击是继续背诵，点击否重新背诵")){
+                        localStorage.setItem("seq", seq);
+                        console.log(seq);
+                        console.log(typeof(seq))
+                    }else{
+                        localStorage.setItem("seq", 0);
+                    }
+                    
+                }else{
+                    localStorage.setItem("seq", 0);
+                }
+                console.log(g_words);
             },
             error : function(e) {
                 alert("异常！");
@@ -36,7 +76,6 @@
     function handle(result){
         /* 前端逻辑处理 */
         var words = result;
-        var seq = 0;
         var recite_queue = words["recite"];
         var review_queue = words["review"];
         var recite_review_queue = [];
@@ -44,7 +83,6 @@
         localStorage.setItem("recite_queue", JSON.stringify(recite_queue));
         localStorage.setItem("review_queue", JSON.stringify(review_queue));
         localStorage.setItem("words", JSON.stringify(words));
-        localStorage.setItem("seq", seq);
         if(words.review_num != 0){
             localStorage.setItem("mode", "review")
         }else{
@@ -53,6 +91,8 @@
         vocab_type = words["vocab_type"];
         $(".current-vocab").html("<p>当前词库：<font color='blue'>" + vocab_type + "</font></p>")    
         var mode = getCurrentMode();
+        seq = getCurrentSequence()
+        console.log(seq)
         render_html(words, seq, mode);
         localStorage.setItem("seq", seq + 1);
     }
@@ -120,38 +160,7 @@
         render_html(words, seq, mode);
         localStorage.setItem('seq', seq + 1);
     })
-    /*
-    function render_button_html(mode, seq, max_seq, type){
-        if(mode == "review"){
-            var review = getReviewQueue();
-            if(type == "left-button"){
-                if(seq == 0) $("#left-btn").attr("src", "img/left-arrow-invalid.png");
-                else $("#left-btn").attr("src", "img/left-arrow-valid.png");
-            }else if(type == "right-button"){
-                if(seq == review.length) $("#right-btn").attr("src", "img/right-arrow-invalid.png");
-                else $("#left-btn").attr("src", "img/right-arrow-valid.png");
-            }
-        }else if(mode == "recite"){
-            var recite = getReciteQueue();
-            if(type == "left-button"){
 
-            }else if(type == "right-button"){
-
-            }
-        
-        }
-    }
-
-    $(".left-button").on("click", function(){
-        var mode = getCurrentMode();
-        var seq = getCurrentSequence();
-        var type = this.attr("class");
-        localStorage.setItem("curr_seq", seq);
-        setSequence(seq - 1);
-        var curr_seq = localStorage.getItem("curr_seq");
-        render_button_html(mode, seq, seq + 1, type);
-    });
-    */
     $(".right-button").on("click", function(){
         var mode = getCurrentMode();
         var seq = getCurrentSequence();
@@ -254,7 +263,7 @@
             type: "POST",//方法类型
             dataType: "json",//预期服务器返回的数据类型
             url: "/app/memorize_out_handler/",//url
-            data: {"words" : words},
+            data: {"words" : words, "complete": true},
             success: function(result){
                 console.log(result)
                 location.href = "/app/"
