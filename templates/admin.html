@@ -46,49 +46,26 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="#">设置</a>
+				<a class="navbar-brand" href="#">个人信息</a>
 			</div>
 
 			<div class="collapse navbar-collapse navbar-right navbar-ex1-collapse">
 				<ul class="nav navbar-nav" id="nav-bar">
-					<li class="menuItem"><a href="/app#aboutus">About us</a></li>
-					<li class="menuItem"><a href="/app#useita">Function</a></li>
-					<li class="menuItem"><a href="/app#developer">Developer</a></li>
-					<li class="menuItem"><a href="/setting">Setting</a></li>
-					<li class='menuItem' id='profile-item'><a href='/profile'> profile </a></li>
-					<li class="menuItem" id="logout-item"><a href="#">logout</a></li>
+                    <li class="menuItem"><a href="/admin/search">查询用户</a></li>
+					<li class="menuItem"><a href="/admin/modify">修改用户</a></li>
+					<li class="menuItem" id="logout-item"><a href='/login'>logout</a></li>
+                   
 				</ul>
 			</div>	   
 		</div>
 	</nav>
-    <div class="setting-outer">
-        <h2 style="margin-left:30px">设置</h2>
+    <div class="profile-outer">
+        <h2 style="margin-left:30px">管理员您好！您可以：</h2>
         <HR/>
-        <div class="recite-vocab" align="center">
-            <h3>背诵词库设置</h3>
-            <select id="vocab">
-                <option id="cet-4" value ="cet-4">四级词汇</option>
-                <option id="cet-6" value ="cet-6">六级词汇</option>
-                <option id="toefl" value="toefl">托福词汇</option>
-                <option id="gre" value="gre">GRE词汇</option>
-              </select>
+        <div class="profile-content" align='center'>
+            <h3 id="search-user">查询用户<h3/>
+            <h3 id="modify-user">修改用户<h3/>
         </div>
-        <HR/>
-        <div class="recite-plan" align="center">
-            <h3>背诵计划设置</h3>
-            <select id="plan">
-            </select>
-        </div>
-        <HR/>
-        <div class="change-pwd" align="center">
-            <h3>修改密码</h3>
-            <p>若无需修改密码，请直接点击提交</p>
-            <input type="password" id='old-pwd' placeholder="旧密码" style="margin-top:10px"></input><br/>
-            <input type="password" id='new-pwd' placeholder="新密码" style="margin-top:10px"></input><br/>
-            <input type="password" id='dup-new-pwd' placeholder="确认新密码" style="margin-top:10px"></input><br/>
-        </div>
-        <br/>
-        <p align="center"><a class="btn btn-embossed btn-primary" id="change-info" href="javacript:" role="button">提交</a></p>
     </div>
 
 	   <!-- JavaScript -->
@@ -113,8 +90,8 @@
 	 new WOW().init();
 	</script>
 	<script src="/static/js/classie.js"></script>
-	<script src="/static/js/setting.js"></script>
     <script src="/static/js/jquery.cookie.js"></script>
+    <script src="/static/js/profile.js"></script>
 	<!-- Magnific Popup core JS file -->
 	<script src="/static/js/jquery.magnific-popup.js"></script> 
 	

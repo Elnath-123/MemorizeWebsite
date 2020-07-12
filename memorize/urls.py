@@ -27,6 +27,9 @@ urlpatterns = [
     path('setting/saveset/',views.save_set),#用于后台处理设置
     path('setting/fetch_set/',views.fetch_set),
     path('app/', views.toMainPage),
+    
+    path('profile/', views.profile),
+    path('fetch_profile/', views.fetch_profile),
 
     path('app/memorize_in/', views.memorize_in),
     path('app/test_in/', views.test_in),
@@ -44,5 +47,13 @@ urlpatterns = [
     path('app/test/test_out_handler/', views.test_out_handler),
 
     path('app/query/', views.query),
-    path('app/translation/', views.translation)
+    path('app/translation/', views.translation),
+
+    path('admin/search/', views.admin_search),
+    path('admin/search_in_handler/', views.admin_in_handler),
+    path('admin/delete_handler/', views.delete_handler),
+
+    path('admin/modify/', views.admin_modify),
+    path('admin/modify_handler/', views.admin_modify_handler),
+    path('admin_page/', views.admin),
 ]

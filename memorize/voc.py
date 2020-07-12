@@ -20,11 +20,12 @@ class User(Base):
     # 表的结构:
     user_id = Column(String(20), primary_key=True)
     user_pwd = Column(String(20))
-    sel_thesaurus = Column(Integer)
+    sel_thesaurus = Column(Integer, default=0)
     com_thesaurus = Column(Integer, default=0)
     com_vocnum = Column(Integer, default=0)
     plan_vocnum = Column(Integer, default=0)
     last_vocnum = Column(Integer, default=0)
+    permission = Column(Integer, default=0)
 
 
 class All_voc(Base):

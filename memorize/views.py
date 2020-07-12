@@ -15,12 +15,17 @@ def row2dict(row):
         d[column.name] = str(getattr(row, column.name))
     return d
 
+def admin_search(request):
+    return render(request, 'search.html')
 
+def admin_modify(request):
+    return render(request, 'modify.html')
+def admin(request):
+    return render(request, 'admin.html')
 # 登录页面
 def login(request):
     # 指定要访问的页面，render的功能：讲请求的页面结果提交给客户端
     return render(request, 'login.html')
-
 
 # 注册页面
 def register(request):
@@ -33,7 +38,9 @@ def setting(request):
 def toMainPage(request):
     return render(request, "app.html")
 
-# 单词查询页面
+# 个人主页
+def profile(request):
+    return render(request, 'profile.html')
 
 # 背诵页面
 def memorize_in(request):
@@ -100,6 +107,7 @@ def save_set(request):
     session.close()
     return HttpResponse(json.dumps({"setting": cfg.SET_SUCCESS}))
 
+# 读取用户当前的设置
 @csrf_exempt
 def fetch_set(request):
     dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
@@ -111,6 +119,20 @@ def fetch_set(request):
         return HttpResponse(json.dumps({"result": cfg.NEW_USER, "plan_num": cfg.NEW_USER_PLAN, "vocab": cfg.NEW_USER_VOACB}))
     return HttpResponse(json.dumps({"result": cfg.OLD_USER, "plan_num": user.plan_vocnum, "vocab": user.sel_thesaurus}))
 
+# 读取用户当前的信息
+@csrf_exempt
+def fetch_profile(request):
+    dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
+    DBSession = connectDB(dburl)
+    userName = request.session.get('user_id')
+    session = DBSession()
+    user = session.query(User).filter(User.user_id == userName).one()
+    result = {}
+    result['user_name'] = userName
+    result['vocab'] = user.sel_thesaurus
+    result['plan_num'] = user.plan_vocnum
+    result['total_num'] = user.com_vocnum
+    return HttpResponse(json.dumps({"result": result}))
 
 # 保存注册的数据
 @csrf_exempt
@@ -134,7 +156,7 @@ def save(request):
             session.close()
             return HttpResponse(json.dumps({"register": cfg.USER_EXIST}))
             
-    new_user = User(user_id=userName, user_pwd=passWord)
+    new_user = User(user_id=userName, user_pwd=passWord, sel_thesaurus=0)
     # 添加到session:
     session.add(new_user)
     # 提交即保存到数据库:
@@ -168,7 +190,11 @@ def login_handler(request):
 
     if user.user_pwd == passWord:
         # 设置cookie和session
-        res = HttpResponse(json.dumps({"login": cfg.LOGIN_SUCCESS}))
+        if user.permission == 1:
+            res = HttpResponse(json.dumps({"login": cfg.LOGIN_ADMIN_SUCCESS}))
+        else:
+            res = HttpResponse(json.dumps({"login": cfg.LOGIN_SUCCESS}))
+
         res.set_cookie("username", userName, expires=cfg.COOKIE_EXPIRE)
         res.set_cookie("password", passWord, expires=cfg.COOKIE_EXPIRE)
         return res
@@ -244,14 +270,20 @@ def memorize_out_handler(request):
     complete = a.get("complete")
     if complete:
         user.last_vocnum = 0
+    
+    # 如果单词背诵完成， 更新完成的词库以及将当前所选词库清零
+    voc_total_num = len(vocab)
+    if voc_total_num == user.com_vocnum:
+        user.com_thesaurus = user.com_thesaurus | user.sel_thesaurus
+        user.sel_thesaurus = 0
 
     session.add_all(new_review_word)
     session.add_all(review_vocab)
     session.commit()
-    recite_num = words["recite_num"]
-    user.com_vocnum += recite_num
-    if user.com_vocnum == recite_num:
-        return HttpResponse(json.dumps({"memorize_out": cfg.MEM_FINISH_VOCAB}))
+    if voc_total_num == user.com_vocnum:
+        user.com_vocnum = 0
+        session.commit()
+        return HttpResponse(json.dumps({"memorize_out": cfg.MEM_FINISH_VOCAB, "vocab_type": user.sel_thesaurus}))
     return HttpResponse(json.dumps({"memorize_out" : cfg.MEM_OUT_SUCCESS}))
 
 # 进入背诵单词， 返回本次背诵的单词
@@ -303,8 +335,13 @@ def memorize_handler(request):
     # print(review_list)
     words = {}
     words['vocab_type'] = vocab_type[user.sel_thesaurus]  # 词库种类
+    
     words['review_num'] = review_num  # 复习单词个数
-    words['recite_num'] = user.plan_vocnum  # 背诵单词个数
+    complete = False
+    if(left_num <= user.plan_vocnum):
+        complete = True
+    recite_num = min(left_num, user.plan_vocnum)
+    words['recite_num'] = recite_num  # 背诵单词个数
     words['review'] = review_dict   # 复习单词
     words['recite'] = recite_dict  #背诵单词
     last_num = user.last_vocnum #上次背诵数量
@@ -420,6 +457,81 @@ def test_out_handler(request):
     session.close()
     return HttpResponse(json.dumps({"result" : cfg.TEST_SUCCESS}))
 
+@csrf_exempt
+def admin_in_handler(request):
+    dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
+    DBSession = connectDB(dburl)
+    session = DBSession()
+    user = session.query(User).all()
+    res = []
+    
+    for i in range(len(user)):
+        res_user = {}
+        res_user['user_name'] = user[i].user_id
+        res_user['user_pwd']  = user[i].user_pwd
+        res_user['sel_vocab'] = user[i].sel_thesaurus
+        res_user['com_vocab'] = user[i].com_thesaurus
+        res_user['com_num']  =  user[i].com_vocnum
+        res_user['plan_num'] =  user[i].plan_vocnum
+        res.append(res_user)
+    print(res)
+    return HttpResponse(json.dumps({"user": res}))
+
+@csrf_exempt
+def admin_modify_handler(request):
+    a = request.POST
+    dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
+    DBSession = connectDB(dburl)
+    session = DBSession()
+    
+    modify_name = a.get("modify_name")
+    modified_pwd = a.get("modified_pwd")
+    clear_review = a.get("clear_review")
+    reset_user = a.get("reset_user")
+    clear_review = True if clear_review == "true" else False
+    reset_user = True if reset_user == "true" else False
+    
+    if(modify_name == ''):
+        return HttpResponse(json.dumps({"result": cfg.NOT_INPUT_USER}))
+
+    try:
+        user = session.query(User).filter(User.user_id == modify_name).one() 
+    except Exception:
+        return HttpResponse(json.dumps({"result": cfg.NO_SUCH_USER}))
+
+    if modified_pwd != '':
+        user.user_pwd = modified_pwd
+        
+
+    if clear_review:
+        session.query(Review).filter(user.user_id == modify_name).delete()
+
+    if reset_user:
+        user.sel_thesaurus = 0
+        user.com_thesaurus = 0
+        user.com_vocnum = 0
+        user.plan_vocnum = 0
+        user.last_vocnum = 0
+    session.commit()
+    return HttpResponse(json.dumps({"result": cfg.MODIFY_SUCCESS}))
+
+@csrf_exempt
+def delete_handler(request):
+    a = request.POST
+    dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
+    DBSession = connectDB(dburl)
+    session = DBSession()
+    print(a)
+    del_list = a.get("data")
+    print(del_list)
+    del_list = json.loads(del_list)
+    
+    if del_list == None:
+        return HttpResponse(json.dumps({"result": cfg.DELETE_SUCCESS}))
+    for k,v in del_list.items():
+        session.query(User).filter(User.user_id == v).delete()
+        session.commit()
+    return HttpResponse(json.dumps({"result": cfg.DELETE_SUCCESS}))
 def setup(request):
     a = request.GET
     newpwd= a.get('passward')

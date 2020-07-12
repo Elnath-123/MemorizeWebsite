@@ -7,7 +7,7 @@
     let USER_NOTEXIST = 1
     let PWD_INCORRECT = 2
     let LOGIN_SUCCESS = 3
-
+    let ADMIN_LOGIN_SUCCESS = 4
 
     $("#login-btn").on("click", function(){
         console.log("submit")
@@ -39,6 +39,8 @@
                     localStorage.setItem("times", 0);
                     console.log("right")
                     location.href = '/app/'
+                }else if(result == ADMIN_LOGIN_SUCCESS){
+                    location.href = '/admin_page/'
                 }else if(result == PWD_INCORRECT){
                     alert("密码错误")
                     console.log("password error")
@@ -141,7 +143,9 @@
             $("#register-item").hide();
             $("#login-item").hide();
             $("#nav-bar").append("<li class='menuItem' id='setting-item'><a href='/setting'>Setting</a></li>")
+            $("#nav-bar").append("<li class='menuItem' id='profile-item'><a href='/profile'> profile </a></li>")
             $("#nav-bar").append("<li class='menuItem' id='logout-item'><a href='/app'> logout </a></li>")
+            
         }else{
             $("#register-item").show();
             $("#login-item").show();
