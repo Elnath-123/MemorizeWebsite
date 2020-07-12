@@ -72,3 +72,7 @@ td {
 .pron{
     font-size: 30px;
 }
+
+.profile-outer > h3{
+    margin-top: 10px;
+}

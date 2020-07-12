@@ -28,7 +28,9 @@
             $("#register-item").hide();
             $("#login-item").hide();
             $("#nav-bar").append("<li class='menuItem' id='setting-item'><a href='/setting'>Setting</a></li>")
+            $("#nav-bar").append("<li class='menuItem' id='profile-item'><a href='/profile'> profile </a></li>")
             $("#nav-bar").append("<li class='menuItem' id='logout-item'><a href='/app'> logout </a></li>")
+           
         }else{
             console.log("???")
             $("#register-item").show();
@@ -62,7 +64,7 @@
         }
         localStorage.setItem("times", parseInt(localStorage.getItem("times")) + 1);
         console.log(localStorage.getItem("times"))
-            
+
         var mapp = {"中文": "zh-CHS", "英文": "en"};
         var appKey = '40e850d8fa26e6cc';
         var key = 'S8Q6odlXu6FMsdRxdwLz6aZPOFkRP863';//注意：暴露appSecret，有被盗用造成损失的风险

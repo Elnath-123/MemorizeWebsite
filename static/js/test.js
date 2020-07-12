@@ -255,7 +255,7 @@
                 dataType: "json",
                 data:{
                     "type" : "spelling",
-                    "score" : acc,
+                    "score" : (acc * 100).toFixed(2),
                     "time" : date.toLocaleString()
                 },
                 success: function(result){

@@ -141,7 +141,9 @@
             $("#register-item").hide();
             $("#login-item").hide();
             $("#nav-bar").append("<li class='menuItem' id='setting-item'><a href='/setting'>Setting</a></li>")
+            $("#nav-bar").append("<li class='menuItem' id='profile-item'><a href='/profile'> profile </a></li>")
             $("#nav-bar").append("<li class='menuItem' id='logout-item'><a href='/app'> logout </a></li>")
+            
         }else{
             $("#register-item").show();
             $("#login-item").show();

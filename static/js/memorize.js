@@ -3,7 +3,13 @@
 
     let NOT_SELECT_VOCAB = 1;
     let MEM_IN_SUCCESS = 2;
-    
+    let MEM_FINISH_VOCAB = 3;
+    let __C = {
+        '1' : '四级词库',
+        '2' : '六级词库',
+        '4' : '托福词库',
+        '8' : 'GRE词库' 
+    }
     var g_words = {};
     $("#stop-memorize").on("click", function(){
         /* 提示用户是否要停止背诵 */
@@ -266,6 +272,10 @@
             data: {"words" : words, "complete": true},
             success: function(result){
                 console.log(result)
+                if(result['memorize_out'] == MEM_FINISH_VOCAB){
+                    var vocab_type = result['vocab_type'] + '';
+                    alert("恭喜您！您已完成" + __C[vocab_type] + "的背诵！");
+                }
                 location.href = "/app/"
             },
             error : function(e) {
