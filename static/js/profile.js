@@ -7,7 +7,7 @@
     }
     $(document).ready(function(){
         $.ajax({
-            type: "POST",//方法类型
+                type: "POST",//方法类型
                 dataType: "json",//预期服务器返回的数据类型
                 url: "/fetch_profile/" ,//url
                 data: {},

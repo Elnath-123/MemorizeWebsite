@@ -46,7 +46,7 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="#">个人信息</a>
+				<a class="navbar-brand" href="/admin_page/">查询用户信息</a>
 			</div>
 
 			<div class="collapse navbar-collapse navbar-right navbar-ex1-collapse">
@@ -59,15 +59,17 @@
 			</div>	   
 		</div>
 	</nav>
-    <div class="profile-outer">
-        <h2 style="margin-left:30px">管理员您好！您可以：</h2>
-        <HR/>
-        <div class="profile-content" align='center'>
-            <h3 id="search-user">查询用户<h3/>
-            <h3 id="modify-user">修改用户<h3/>
-        </div>
-    </div>
+    <style>
 
+</style>
+    <table class='table11_7' align='center' style="margin-top:7%">
+        <tr>
+            <th>用户名</th><th>密码</th><th>选择词库</th><th>背诵数量</th><th>计划数量</th><th>背诵完成词库</th><th>管理员删除操作</th>
+        </tr>
+
+
+    </table> 
+	<p align='center' style="margin-top:15px"><a class="btn btn-embossed btn-primary" id="search-submit" role="button">提交</a></p>
 	   <!-- JavaScript -->
     <script src="/static/js/jquery-1.10.2.js"></script>
     <script src="/static/js/bootstrap.js"></script>
@@ -91,7 +93,7 @@
 	</script>
 	<script src="/static/js/classie.js"></script>
     <script src="/static/js/jquery.cookie.js"></script>
-    <script src="/static/js/profile.js"></script>
+	<script src="/static/js/admin_search.js"></script>
 	<!-- Magnific Popup core JS file -->
 	<script src="/static/js/jquery.magnific-popup.js"></script> 
 	

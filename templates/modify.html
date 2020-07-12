@@ -46,7 +46,7 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="#">个人信息</a>
+				<a class="navbar-brand" href="/admin_page/">修改用户</a>
 			</div>
 
 			<div class="collapse navbar-collapse navbar-right navbar-ex1-collapse">
@@ -59,15 +59,13 @@
 			</div>	   
 		</div>
 	</nav>
-    <div class="profile-outer">
-        <h2 style="margin-left:30px">管理员您好！您可以：</h2>
-        <HR/>
-        <div class="profile-content" align='center'>
-            <h3 id="search-user">查询用户<h3/>
-            <h3 id="modify-user">修改用户<h3/>
-        </div>
+    <div class="modify-outer" align='center' style="margin-top: 8%">
+        <label>您想要修改的用户： </label><input id="modify-name"> </input><br/>
+        <label>该用户修改后的密码： </label><input id="modified-pwd"> </input><br/>
+        <label>是否清除该用户复习单词库： </label><input type='checkbox' id="clear-review"> </input><br/>
+        <label>是否重置该用户信息： </label><input type='checkbox' id="reset-user"> </input><br/>
     </div>
-
+	<p align='center' style="margin-top:15px"><a class="btn btn-embossed btn-primary" id="modify-btn" role="button">提交</a></p>
 	   <!-- JavaScript -->
     <script src="/static/js/jquery-1.10.2.js"></script>
     <script src="/static/js/bootstrap.js"></script>
@@ -91,7 +89,7 @@
 	</script>
 	<script src="/static/js/classie.js"></script>
     <script src="/static/js/jquery.cookie.js"></script>
-    <script src="/static/js/profile.js"></script>
+	<script src="/static/js/admin_modify.js"></script>
 	<!-- Magnific Popup core JS file -->
 	<script src="/static/js/jquery.magnific-popup.js"></script> 
 	
