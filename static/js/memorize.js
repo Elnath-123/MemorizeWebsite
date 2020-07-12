@@ -93,15 +93,19 @@
         localStorage.setItem("recite_queue", JSON.stringify(recite_queue));
         localStorage.setItem("review_queue", JSON.stringify(review_queue));
         localStorage.setItem("words", JSON.stringify(words));
-        if(words.review_num != 0){
-            alert("本次需要复习单词" + words["review_num"] + "个");
-            localStorage.setItem("mode", "review")
-        }else{
-            localStorage.setItem("mode", "recite")
-        }
         if(ckpt){
             localStorage.setItem("mode", "recite")
         }
+
+        if(words.review_num != 0){
+            if(!ckpt){
+                alert("本次需要复习单词" + words["review_num"] + "个");
+                localStorage.setItem("mode", "review")
+            }
+        }else{
+            localStorage.setItem("mode", "recite")
+        }
+        
         vocab_type = words["vocab_type"];
         $(".current-vocab").html("<p>当前词库：<font color='blue'>" + vocab_type + "</font></p>")    
         var mode = getCurrentMode();
@@ -214,7 +218,7 @@
                 console.log(getReviewReviewQueue())
             }else{
                 /* 复习时不认识： 则不做任何操作 */
-                review = getReciteQueue();
+                review = getReviewQueue();
                 appendReviewReviewAgain(review[seq]);
                 console.log(getReviewReviewQueue())
             }
