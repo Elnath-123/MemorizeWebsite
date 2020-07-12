@@ -234,13 +234,20 @@ def memorize_out_handler(request):
     review_word = words["review"]
     #拿出所有指数大于3的单词，由于复习库没有变，因此这里的vocab与memorize_handler中的vocab一致
     #因此可以直接更新
-    vocab = session.query(Review).filter(Review.index >= 3).all()
+    print("Username{}".format(userName))
+    print("Username{}".format(user.user_id))
+
+    vocab = session.query(Review).filter(Review.index >= 3).filter(Review.user_id == userName).all()
     new_review_word = []
-    for i in range(len(vocab)):
+    print("newcab:{}".format(len(vocab)))
+    voc_len = len(vocab)
+    i = 0
+    while i < voc_len:
         # 如果指数小于等于1， 则从复习单词表中删除
         if(vocab[i].index <= 1):
             session.query(Review).filter(vocab[i].voc_id == review_word[i]["id"]).delete()
             session.commit()
+            voc_len -= 1
         else:
             session.query(Review).filter(vocab[i].voc_id == review_word[i]["id"]).update({"index": review_word[i]["index"]})
             session.commit()

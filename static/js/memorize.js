@@ -11,6 +11,7 @@
         '8' : 'GRE词库' 
     }
     var g_words = {};
+    var ckpt = false;
     $("#stop-memorize").on("click", function(){
         /* 提示用户是否要停止背诵 */
         if(getCurrentMode() == "recite"){
@@ -60,6 +61,7 @@
                 if(seq){
                     if(confirm("检测到您上次背诵单词的记录，是否需要继续背诵？点击是继续背诵，点击否重新背诵")){
                         localStorage.setItem("seq", seq);
+                        ckpt = true;
                         console.log(seq);
                         console.log(typeof(seq))
                     }else{
@@ -85,13 +87,19 @@
         var recite_queue = words["recite"];
         var review_queue = words["review"];
         var recite_review_queue = [];
+        var review_review_queue = [];
         localStorage.setItem("recite_review_queue", JSON.stringify(recite_review_queue));
+        localStorage.setItem("review_review_queue", JSON.stringify(review_review_queue));
         localStorage.setItem("recite_queue", JSON.stringify(recite_queue));
         localStorage.setItem("review_queue", JSON.stringify(review_queue));
         localStorage.setItem("words", JSON.stringify(words));
         if(words.review_num != 0){
+            alert("本次需要复习单词" + words["review_num"] + "个");
             localStorage.setItem("mode", "review")
         }else{
+            localStorage.setItem("mode", "recite")
+        }
+        if(ckpt){
             localStorage.setItem("mode", "recite")
         }
         vocab_type = words["vocab_type"];
@@ -110,16 +118,18 @@
         $("#familiar").hide();
         console.log(mode);
         if(mode == "review"){
+            console.log("INNINININI");
             review = getReviewQueue();
             review_num = words["review_num"];
             var word = review[seq];
             var word_pron = word["pron"];
             var word_spell = word["word"];
-            $(".memory-progress").html("<p>进度：<font color='red'>" + (seq + 1) + "</font>/" + review_num + "</p>");
+            //$(".memory-progress").html("<p>进度：<font color='red'>" + (seq + 1) + "</font>/" + review_num + "</p>");
+            console.log(word_spell)
             $(".word").html(word_spell);
             $(".pron").html(word_pron);
             $(".prompt").html("点击屏幕任何空白位置，显示正确答案");
-            $(".current-mode > p:first").html("<p>当前您正在：<font color='red'>复习</font></p>")
+            $(".current-mode > p:first").html("<p>当前您正在：<font color='red'>复习</font></p>");
         }
         else if(mode == "recite"){
             recite = getReciteQueue();
@@ -127,12 +137,13 @@
             var word = recite[seq];
             var word_pron = word["pron"];
             var word_spell = word["word"];
+            $(".memory-progress").show()
             $(".memory-progress").html("<p>进度：<font color='red'>" + (seq + 1) + "</font>/" + recite_num + "</p>");
             $(".word").html(word_spell);
             $(".pron").html(word_pron);
             $(".prompt").html("点击屏幕任何空白位置，显示正确答案");
             $(".current-mode > p:first").html("<p>当前您正在：<font color='red'>背诵</font></p>")
-        }else{
+        }else if(mode == "recite_review"){
             recite = getReciteReviewQueue();
             if(!recite.length) return;
             var word = recite.shift();
@@ -147,6 +158,23 @@
             $("#not-familiar").html("不记得");
             $("#not-determined").html("模糊");
             $("#familiar").html("记得");
+        }else if(mode == "review_review"){
+            console.log("start, " + mode)
+            review = getReviewReviewQueue();
+            console.log(review)
+            if(!review.length) return;
+            var word = review.shift();
+            var word_pron = word["pron"];
+            var word_spell = word["word"];
+            /* 复习刚背诵的单词时， 隐藏进度 */
+            $(".memory-progress").hide();
+            $(".word").html(word_spell);
+            $(".pron").html(word_pron);
+            $(".current-mode > p:first").html("<p>当前您正在：<font color='red'>再次复习单词</font></p>")
+            $(".prompt").html("还记得这个单词吗?")
+            $("#not-familiar").html("不记得");
+            $("#not-determined").html("模糊");
+            $("#familiar").html("记得");
         }
         
     }
@@ -154,7 +182,6 @@
     $("#not-familiar, #not-determined, #familiar").on("click", function(){
         words = getWords();
         var mode = getCurrentMode();
-        //console.log(mode);
         seq = getCurrentSequence();
 
         select_content = this.innerHTML;
@@ -181,9 +208,15 @@
             if(select_content == "认识" || select_content == "记得"){
                 decIndex(2, seq);
             }else if(select_content == "模糊"){
+                review = getReviewQueue();
+                appendReviewReviewAgain(review[seq]);
                 decIndex(1, seq)
+                console.log(getReviewReviewQueue())
             }else{
                 /* 复习时不认识： 则不做任何操作 */
+                review = getReciteQueue();
+                appendReviewReviewAgain(review[seq]);
+                console.log(getReviewReviewQueue())
             }
         }else if(mode == "recite"){
             if(select_content == "认识" || select_content == "记得"){
@@ -193,7 +226,7 @@
             }else{
                 incIndex(2, seq);
             }
-        }else{
+        }else if(mode == "recite_review"){
             /* 复习所背诵的新单词，不更新指数，只将不认识/模糊，重新入队 */
             if(select_content == "认识" || select_content == "记得"){
                 /* 复习新单词时认识， 不做任何操作 */
@@ -203,6 +236,16 @@
                 console.log("queue length:" + recite_review_queue);
             }
             popFromReviewQueue();
+        }else if(mode == "review_review"){
+             /* 复习所背诵的新单词，不更新指数，只将不认识/模糊，重新入队 */
+            if(select_content == "认识" || select_content == "记得"){
+                /* 复习新单词时认识， 不做任何操作 */
+            }else{
+                review_review_queue = getReviewReviewQueue();
+                appendReviewReviewAgain(review_review_queue[0]);
+                console.log("queue length:" + review_review_queue);
+            }
+            popFromReviewReviewQueue();
         }
     }
 
@@ -214,9 +257,16 @@
                 /* ajax提交表单 */
                 
                 /* 后续处理，开始背诵新单词 */
-                render_html(words, 0, "recite");
-                setMode("recite");
+                render_html(words, 0, "review_review");
+                setMode("review_review");
                 setSequence(1);
+                console.log(getCurrentSequence())
+                if(!getReviewReviewQueue().length){
+                    console.log("no review_review");
+                    render_html(words, 0, "recite");
+                    setSequence(1);
+                    setMode("recite")
+                }
                 return true;
             }
         }else if(mode == "recite"){
@@ -238,10 +288,23 @@
                 }
                 console.log("now-" + JSON.stringify(getReciteReviewQueue()));
                 render_html(words, 0, "recite_review");
+                setSequence(1);
                 setMode("recite_review");
                 return true;
             }
-        }else{
+        }else if(mode == "review_review"){
+            /* recite_review */
+            review_review = getReviewReviewQueue();
+            if(!review_review.length){
+                /* 复习结束 */
+                alert('复习结束')
+                render_html(words, 0, "recite");
+                setSequence(1);
+                console.log(getCurrentSequence())
+                setMode("recite");
+                return true;
+            }
+        }else if(mode == "recite_review"){
             /* recite_review */
             recite_review = getReciteReviewQueue();
             if(!recite_review.length){
@@ -289,6 +352,7 @@
         review = getReviewQueue();
         review[seq]["index"] -= num;
         setReviewQueue(review);
+        
     }
 
     function incIndex(num, seq=-1){
@@ -323,6 +387,22 @@
         return JSON.parse(localStorage.getItem("recite_review_queue"));
     }
 
+    function getReviewReviewQueue(){
+        return JSON.parse(localStorage.getItem("review_review_queue"));
+    }
+
+    function appendReviewReviewAgain(word){
+        recite_review_queue = JSON.parse(localStorage.getItem("review_review_queue"));
+        recite_review_queue.push(word);
+        console.log(recite_review_queue);
+        recite_review_queue = localStorage.setItem("review_review_queue", JSON.stringify(recite_review_queue));
+    }
+
+    function popFromReviewReviewQueue(){
+        recite_review_queue = JSON.parse(localStorage.getItem("review_review_queue"));
+        recite_review_queue.shift();
+        localStorage.setItem("review_review_queue", JSON.stringify(recite_review_queue));
+    }
 
     function getWords(){
         return JSON.parse(localStorage.getItem("words"));
@@ -379,17 +459,19 @@
     $("body").not(".selection").click( function() {
         seq = getCurrentSequence();
         mode = getCurrentMode();
-        
+        console.log(seq);
         if(mode == "recite_review")
             correct = getReciteReviewQueue()[0]["correct"];
-        else
+        else if(mode == "review_review")
+            correct = getReviewReviewQueue()[0]["correct"];
+        else 
             correct = getCorrectWord(seq - 1, mode);
         $(".correct-answer").html("<h3 class='correct-answer'><font color='green'>" + correct + "</font></h3>")
         $(".correct-answer").show();
         $("#not-familiar").show();
         $("#not-determined").show();
         $("#familiar").show();
-        $(".prompt").html("请根据您对单词认识程度选择以下选项中的一个：")   
+        $(".prompt").html("请根据您对单词认识程度选择以下选项中的一个：");
     });
 
     $('.selection').click(function(e){
