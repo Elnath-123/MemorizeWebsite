@@ -52,6 +52,7 @@ urlpatterns = [
     path('admin/search/', views.admin_search),
     path('admin/search_in_handler/', views.admin_in_handler),
     path('admin/delete_handler/', views.delete_handler),
+    path('admin_auth/', views.admin_auth),
 
     path('admin/modify/', views.admin_modify),
     path('admin/modify_handler/', views.admin_modify_handler),

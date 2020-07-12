@@ -341,6 +341,7 @@
                 console.log(result)
                 if(result['memorize_out'] == MEM_FINISH_VOCAB){
                     var vocab_type = result['vocab_type'] + '';
+                    console.log("vocab_type:" + vocab_type)
                     alert("恭喜您！您已完成" + __C[vocab_type] + "的背诵！");
                 }
                 location.href = "/app/"

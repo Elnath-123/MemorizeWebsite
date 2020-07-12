@@ -251,6 +251,7 @@ def memorize_out_handler(request):
         else:
             session.query(Review).filter(vocab[i].voc_id == review_word[i]["id"]).update({"index": review_word[i]["index"]})
             session.commit()
+        i += 1
 
     #背诵的新单词处理，
     vocab = session.query(All_voc).filter(operators.op(All_voc.thesaurus, '&', user.sel_thesaurus)).all()
@@ -280,6 +281,7 @@ def memorize_out_handler(request):
     
     # 如果单词背诵完成， 更新完成的词库以及将当前所选词库清零
     voc_total_num = len(vocab)
+    sel_vocab = user.sel_thesaurus
     if voc_total_num == user.com_vocnum:
         user.com_thesaurus = user.com_thesaurus | user.sel_thesaurus
         user.sel_thesaurus = 0
@@ -290,7 +292,7 @@ def memorize_out_handler(request):
     if voc_total_num == user.com_vocnum:
         user.com_vocnum = 0
         session.commit()
-        return HttpResponse(json.dumps({"memorize_out": cfg.MEM_FINISH_VOCAB, "vocab_type": user.sel_thesaurus}))
+        return HttpResponse(json.dumps({"memorize_out": cfg.MEM_FINISH_VOCAB, "vocab_type": sel_vocab}))
     return HttpResponse(json.dumps({"memorize_out" : cfg.MEM_OUT_SUCCESS}))
 
 # 进入背诵单词， 返回本次背诵的单词
@@ -539,6 +541,19 @@ def delete_handler(request):
         session.query(User).filter(User.user_id == v).delete()
         session.commit()
     return HttpResponse(json.dumps({"result": cfg.DELETE_SUCCESS}))
+
+@csrf_exempt
+def admin_auth(request):
+    a = request.POST
+    dburl = 'mysql+mysqlconnector://root:990721@localhost:3306/voc'
+    DBSession = connectDB(dburl)
+    session = DBSession()
+    userName = request.session.get('user_id')
+    user = session.query(User).filter(User.user_id == userName).one() 
+    if user.permission == 0:
+        return HttpResponse(json.dumps({'result' : -1}))
+    return HttpResponse(json.dumps({'result': 1}))
+
 def setup(request):
     a = request.GET
     newpwd= a.get('passward')
